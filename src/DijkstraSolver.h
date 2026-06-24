@@ -32,15 +32,15 @@ public:
     Vertex* getCurrentVertex() const;
     Vertex* getStartVertex() const;
     QMap<Vertex*, int> getDistances() const;
-    QMap<Vertex*, Vertex*> getPredecessors() const;
-    QList<Vertex*> getShortestPathTo(Vertex* target) const;
     bool isFinished() const;
     QList<Vertex*> getUnvisited() const;
-    QList<Edge*> getConsideredEdges() const; // рёбра, рассматриваемые на текущем шаге (для визуализации)
 
-    // Методы для получения состояний (нужны визуализатору)
+    // Методы для получения состояний
     VertexState getVertexState(Vertex* v) const;
     EdgeState getEdgeState(Edge* e) const;
+
+    //для тестов
+    QList<Vertex*> getShortestPathTo(Vertex* target) const;//для тестов
 
 private:
     Graph* m_graph;
@@ -51,16 +51,6 @@ private:
     Vertex* m_currentVertex; // текущая обрабатываемая вершина (жёлтая)
     Vertex* m_previousYellowVertex; // предыдущая жёлтая вершина (для правил визуализации)
     bool m_finished;
-    QList<Edge*> m_consideredEdges; // рёбра, рассматриваемые на текущем шаге (для визуализации)
-
-    // Приоритетная очередь вершин (пары расстояние-вершина)
-    QList<QPair<int, Vertex*>> m_priorityQueue;
-
-    // Вспомогательные методы
-    void initialize();
-    Vertex* extractMinDistanceVertex(); // извлечь вершину с минимальным расстоянием из очереди (оранжевые)
-    void relaxNeighbors(Vertex* v); // релаксация соседей вершины v
-
     // Хранилища состояний
     QMap<Vertex*, VertexState> m_vertexState;
     QMap<Edge*, EdgeState> m_edgeState;

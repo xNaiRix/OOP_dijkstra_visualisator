@@ -228,25 +228,12 @@ bool DijkstraSolver::step() {
     }
 }
 
-void DijkstraSolver::reset() {
-    initialize();
-}
+//геттеры
+Vertex* DijkstraSolver::getCurrentVertex() const {return m_currentVertex;}
 
-Vertex* DijkstraSolver::getCurrentVertex() const {
-    return m_currentVertex;
-}
+Vertex* DijkstraSolver::getStartVertex() const {return m_startVertex;}
 
-Vertex* DijkstraSolver::getStartVertex() const {
-    return m_startVertex;
-}
-
-QMap<Vertex*, int> DijkstraSolver::getDistances() const {
-    return m_distances;
-}
-
-QMap<Vertex*, Vertex*> DijkstraSolver::getPredecessors() const {
-    return m_predecessors;
-}
+QMap<Vertex*, int> DijkstraSolver::getDistances() const {return m_distances;}
 
 QList<Vertex*> DijkstraSolver::getShortestPathTo(Vertex* target) const {
     QList<Vertex*> path;
@@ -261,17 +248,10 @@ QList<Vertex*> DijkstraSolver::getShortestPathTo(Vertex* target) const {
     return path;
 }
 
-bool DijkstraSolver::isFinished() const {
-    return m_finished;
-}
+bool DijkstraSolver::isFinished() const {return m_finished;}
 
-QList<Vertex*> DijkstraSolver::getUnvisited() const {
-    return m_unvisited;
-}
+QList<Vertex*> DijkstraSolver::getUnvisited() const {return m_unvisited;}
 
-QList<Edge*> DijkstraSolver::getConsideredEdges() const {
-    return m_consideredEdges;
-}
 
 DijkstraSolver::VertexState DijkstraSolver::getVertexState(Vertex* v) const {
     return m_vertexState.value(v, VS_WHITE);
@@ -281,6 +261,7 @@ DijkstraSolver::EdgeState DijkstraSolver::getEdgeState(Edge* e) const {
     return m_edgeState.value(e, ES_WHITE);
 }
 
+// сеттеры
 void DijkstraSolver::setVertexState(Vertex* v, VertexState state) {
     m_vertexState[v] = state;
 }
@@ -294,20 +275,18 @@ void DijkstraSolver::setEdgeState(Edge* e, EdgeState state) {
     m_edgeState[e] = state;
 }
 
-void DijkstraSolver::initialize() {
-    qDebug() << "=== initialize() called";
+void DijkstraSolver::reset() {
+    qDebug() << "=== reset() called";
     m_distances.clear();
     m_predecessors.clear();
     m_vertexState.clear();
     m_edgeState.clear();
     m_oldVertexState.clear();
     m_oldEdgeState.clear();
-    m_priorityQueue.clear();
     m_unvisited = m_graph->getVertices();
     m_finished = false;
     m_currentVertex = nullptr;
     m_previousYellowVertex = nullptr;
-    m_consideredEdges.clear();
     m_substep = 0;
 
     // Инициализация расстояний и состояний вершин
@@ -331,26 +310,6 @@ void DijkstraSolver::initialize() {
         qDebug() << "Start vertex" << m_startVertex->getId() << "set YELLOW";
     }
 
-    qDebug() << "Initialization complete";
+    qDebug() << "Reseting complete";
 }
 
-Vertex* DijkstraSolver::extractMinDistanceVertex() {
-    // Этот метод больше не используется в новой логике, но оставим для совместимости
-    Vertex* minVertex = nullptr;
-    int minDist = INT_MAX;
-    for (Vertex* v : m_graph->getVertices()) {
-        if (m_vertexState.value(v, VS_WHITE) == VS_ORANGE) {
-            int d = m_distances.value(v, INT_MAX);
-            if (d < minDist) {
-                minDist = d;
-                minVertex = v;
-            }
-        }
-    }
-    return minVertex;
-}
-
-void DijkstraSolver::relaxNeighbors(Vertex* v) {
-    // Устаревший метод, оставлен для совместимости
-    // Релаксация теперь выполняется внутри step()
-}
