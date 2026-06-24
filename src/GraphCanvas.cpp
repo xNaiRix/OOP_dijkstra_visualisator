@@ -2,6 +2,12 @@
 #include <QPainter>
 #include <QDebug>
 #include <QMessageBox>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QSpinBox>
 
 const QColor COLOR_VERTEX_NORMAL = QColor(240, 240, 240); // светло-серый (белый)
 const QColor COLOR_VERTEX_START = QColor(255, 165, 0);    // оранжевый (для стартовой вершины, которая в очереди)
@@ -442,14 +448,49 @@ void GraphCanvas::mouseReleaseEvent(QMouseEvent* event) {
 void GraphCanvas::mouseDoubleClickEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
         QPointF pos = event->pos();
+        // Сначала ищем ребро по клику на линии, затем по клику на метке веса
         Edge* edge = edgeAt(pos);
+        if (!edge) {
+            edge = edgeAtWeight(pos);
+        }
         if (edge) {
-            // Изменение веса ребра
-            bool ok;
-            int newWeight = QInputDialog::getInt(this, "Вес ребра",
-                "Новый вес:", edge->getWeight(), 1, 1000, 1, &ok);
-            if (ok) {
-                edge->setWeight(newWeight);
+            // Кастомный диалог: изменение веса ребра + сброс позиции метки
+            QDialog dialog(this);
+            dialog.setWindowTitle("Ребро");
+            QVBoxLayout* layout = new QVBoxLayout(&dialog);
+
+            // Поле для ввода веса
+            QHBoxLayout* weightLayout = new QHBoxLayout();
+            weightLayout->addWidget(new QLabel("Вес:"));
+            QSpinBox* spinBox = new QSpinBox();
+            spinBox->setRange(1, 1000);
+            spinBox->setValue(edge->getWeight());
+            weightLayout->addWidget(spinBox);
+            layout->addLayout(weightLayout);
+
+            // Кнопки
+            QHBoxLayout* btnLayout = new QHBoxLayout();
+            QPushButton* btnApply = new QPushButton("Изменить вес");
+            QPushButton* btnReset = new QPushButton("Вернуть к ребру");
+            QPushButton* btnCancel = new QPushButton("Отмена");
+            btnLayout->addWidget(btnApply);
+            btnLayout->addWidget(btnReset);
+            btnLayout->addWidget(btnCancel);
+            layout->addLayout(btnLayout);
+
+            connect(btnApply, &QPushButton::clicked, [&]() {
+                edge->setWeight(spinBox->value());
+                dialog.accept();
+            });
+            connect(btnReset, &QPushButton::clicked, [&]() {
+                edge->resetLabelPos();
+                dialog.accept();
+            });
+            connect(btnCancel, &QPushButton::clicked, [&]() {
+                dialog.reject();
+            });
+
+            if (dialog.exec() == QDialog::Accepted) {
                 update();
             }
             return;
