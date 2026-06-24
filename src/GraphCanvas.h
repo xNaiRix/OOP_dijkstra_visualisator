@@ -53,7 +53,7 @@ private:
     QList<Vertex*> m_selectedVertices; // для Shift+выделения
     Edge* m_draggedEdge;               // ребро, метка которого перетаскивается
     QPointF m_dragLabelOffset;         // смещение мыши относительно центра метки
-    Edge* m_selectedEdge;              // выделенное ребро (для удаления по Del)
+    Edge* m_selectedEdge;              // выделенное ребро (для удаления по del)
 
     void drawVertex(QPainter& painter, Vertex* v);
     void drawEdge(QPainter& painter, Edge* e);

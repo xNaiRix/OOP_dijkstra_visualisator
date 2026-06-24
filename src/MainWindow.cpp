@@ -28,7 +28,7 @@ void MainWindow::setGraphAndSolver(Graph* graph, DijkstraSolver* solver) {
 }
 
 void MainWindow::setupUI() {
-    // Создание виджетов
+    //создание виджетов
     m_canvas = new GraphCanvas(this);
     m_btnSetStart = new QPushButton("Установить старт", this);
     m_btnStart = new QPushButton("Запуск", this);
@@ -40,14 +40,14 @@ void MainWindow::setupUI() {
     m_timer = new QTimer(this);
     m_timer->setInterval(1000); // 1 секунда
 
-    // Настройка таблицы расстояний
+    //таблица расстояний
     m_distanceTable->setColumnCount(2);
     m_distanceTable->setHorizontalHeaderLabels({"Вершина", "Расстояние"});
     m_distanceTable->horizontalHeader()->setStretchLastSection(true);
     m_distanceTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_distanceTable->setMaximumWidth(300);
 
-    // Горизонтальная панель кнопок
+    //горизонтальная панель кнопок
     QHBoxLayout* buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(m_btnSetStart);
     buttonLayout->addWidget(m_btnStart);
@@ -56,20 +56,20 @@ void MainWindow::setupUI() {
     buttonLayout->addWidget(m_btnGenerateRandom);
     buttonLayout->addStretch();
 
-    // Левая часть: кнопки, canvas, статус
+    //левая часть: кнопки, canvas, статус
     QVBoxLayout* leftLayout = new QVBoxLayout();
     leftLayout->addLayout(buttonLayout);
     leftLayout->addWidget(m_canvas, 1);
     leftLayout->addWidget(m_statusLabel, 0);
 
-    // Правая часть: таблица расстояний
+    //правая часть: таблица расстояний
     QVBoxLayout* rightLayout = new QVBoxLayout();
     rightLayout->addWidget(new QLabel("Таблица расстояний", this));
     rightLayout->addWidget(m_distanceTable);
     // Добавляем пояснения цветов
     rightLayout->addWidget(createColorLegendWidget());
 
-    // Основной горизонтальный layout
+    //основной горизонтальный layout
     QHBoxLayout* mainLayout = new QHBoxLayout();
     mainLayout->addLayout(leftLayout, 3); // 3 части ширины
     mainLayout->addLayout(rightLayout, 1); // 1 часть ширины
@@ -144,19 +144,19 @@ void MainWindow::onResetClicked() {
 void MainWindow::onGenerateRandomClicked() {
     if (!m_graph || !m_canvas) return;
 
-    // Диалог для ввода количества вершин
+    //диалог для ввода количества вершин
     bool ok;
     int vertexCount = QInputDialog::getInt(this, "Генерация случайного графа",
                                            "Количество вершин:", 10, 1, 100, 1, &ok);
     if (!ok) return;
 
-    // Максимальное количество рёбер для простого графа
+    //максимальное количество рёбер для простого графа
     int maxEdges = vertexCount * (vertexCount - 1) / 2;
     int edgeCount = QInputDialog::getInt(this, "Генерация случайного графа",
                                          "Количество рёбер:", vertexCount * 2, vertexCount - 1, maxEdges, 1, &ok);
     if (!ok) return;
 
-    // Определяем область размещения вершин (с отступами)
+    //оппределяем область размещения вершин (с отступами)
     QRectF area = m_canvas->rect().adjusted(50, 50, -50, -50);
     if (area.width() <= 0 || area.height() <= 0) {
         area = QRectF(50, 50, 500, 400);

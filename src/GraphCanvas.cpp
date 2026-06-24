@@ -14,11 +14,11 @@ const QColor COLOR_VERTEX_START = QColor(255, 165, 0);    // оранжевый 
 const QColor COLOR_VERTEX_CURRENT = Qt::yellow;           // жёлтый
 const QColor COLOR_VERTEX_VISITED = Qt::green;            // зелёный (финализирована)
 const QColor COLOR_VERTEX_SELECTED = Qt::cyan;            // голубой для выделения (не меняем логику)
-const QColor COLOR_EDGE_CONSIDERING = Qt::yellow;         // жёлтый (ребро ослабляется сейчас)
+const QColor COLOR_EDGE_CONSIDERING = Qt::yellow;         // жёлтый (ребро смотрится сейчас)
 const QColor COLOR_EDGE_IN_QUEUE = QColor(255, 165, 0);   // оранжевый (ребро в очереди)
 const QColor COLOR_EDGE_IN_PATH = Qt::green;              // зелёный (ребро в дереве ответов)
 const QColor COLOR_EDGE_REJECTED = Qt::red;               // красный (ребро отвергнуто)
-const qreal VERTEX_RADIUS = 20.0;
+const qreal VERTEX_RADIUS = 23.0;
 
 QColor GraphCanvas::getEdgeNormalColor() const
 {
@@ -75,7 +75,6 @@ void GraphCanvas::setStartVertex(Vertex* v) {
 void GraphCanvas::startDijkstra() {
     if (m_solver && m_startVertex) {
         m_solver->reset();
-        // можно запустить таймер для автоматических шагов
     }
 }
 
@@ -115,24 +114,14 @@ void GraphCanvas::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // Рисуем рёбра
+    // Рисуем граф
     if (m_graph) {
         for (Edge* e : m_graph->getEdges()) {
             drawEdge(painter, e);
         }
-    }
-
-    // Рисуем вершины
-    if (m_graph) {
         for (Vertex* v : m_graph->getVertices()) {
             drawVertex(painter, v);
         }
-    }
-
-    // Временная линия для добавления ребра
-    if (m_mode == AddEdge && m_edgeStartVertex) {
-        painter.setPen(QPen(Qt::darkGray, 2, Qt::DashLine));
-        painter.drawLine(m_edgeStartVertex->getPosition(), mapFromGlobal(QCursor::pos()));
     }
 }
 
@@ -167,7 +156,7 @@ void GraphCanvas::drawVertex(QPainter& painter, Vertex* v) {
         }
     }
 
-    // Определение цвета текста: для цветных вершин — черный, для белых — тоже черный (контрастный относительно вершины)
+    // Определение цвета текста: для цветных вершин — черный, для белых — тоже черный
     QColor textColor = Qt::black;
     // Подсветка выделенной вершины
     if (m_selectedVertices.contains(v) || v == m_selectedVertex) {
@@ -184,9 +173,9 @@ void GraphCanvas::drawVertex(QPainter& painter, Vertex* v) {
     if (m_solver) {
         int dist = m_solver->getDistances().value(v, INT_MAX);
         if (dist == INT_MAX) {
-            text += QString("\n∞");
+            text += QString("\ndist=∞");
         } else {
-            text += QString("\n%1").arg(dist);
+            text += QString("\ndist=%1").arg(dist);
         }
     }
     painter.setPen(textColor);
@@ -199,7 +188,7 @@ void GraphCanvas::drawEdge(QPainter& painter, Edge* e) {
     QPointF p2 = e->getTo()->getPosition();
 
     // Определение цвета на основе состояния ребра
-    QColor edgeColor = getEdgeNormalColor(); // белый/чёрный по умолчанию
+    QColor edgeColor = getEdgeNormalColor();
     
     if (m_solver) {
         DijkstraSolver::EdgeState state = m_solver->getEdgeState(e);
@@ -239,7 +228,6 @@ void GraphCanvas::drawEdge(QPainter& painter, Edge* e) {
         labelPos = e->getLabelPos();
     } else {
         labelPos = (p1 + p2) / 2;
-        // Можно сохранить как позицию по умолчанию, но не будем устанавливать флаг custom
     }
     
     QString weightText = QString::number(e->getWeight());
@@ -254,7 +242,7 @@ void GraphCanvas::drawEdge(QPainter& painter, Edge* e) {
     painter.drawRect(textRect);
     
     painter.setPen(getContrastTextColor());
-    painter.drawText(labelPos, weightText);
+    painter.drawText(labelPos + QPointF(-5.5,6.), weightText);
 }
 
 Vertex* GraphCanvas::vertexAt(const QPointF& pos) const {
@@ -317,8 +305,7 @@ Edge* GraphCanvas::edgeAt(const QPointF& pos) const {
 
 Edge* GraphCanvas::edgeAtWeight(const QPointF& pos) const {
     if (!m_graph) return nullptr;
-    
-    const qreal threshold = 20.0; // пикселей, размер метки
+    const qreal threshold = 23.0; // пикселей, размер метки
     Edge* closestEdge = nullptr;
     qreal minDist = threshold;
     
