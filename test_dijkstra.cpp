@@ -2,25 +2,21 @@
 #include "src/DijkstraSolver.h"
 #include <QCoreApplication>
 #include <QDebug>
+#include <climits>
 #include <iostream>
 
 int main(int argc, char *argv[]) {
+    std::cout << "Hello, World!" << std::endl;
     QCoreApplication app(argc, argv);
 
     Graph* graph = new Graph();
     
-    // Создаём вершины
-    Vertex* v0 = new Vertex(0, 0, 0);
-    Vertex* v1 = new Vertex(1, 100, 0);
-    Vertex* v2 = new Vertex(2, 200, 0);
-    Vertex* v3 = new Vertex(3, 0, 100);
-    Vertex* v4 = new Vertex(4, 100, 100);
-    
-    graph->addVertex(v0);
-    graph->addVertex(v1);
-    graph->addVertex(v2);
-    graph->addVertex(v3);
-    graph->addVertex(v4);
+    // Создаём вершины через Graph (addVertex возвращает Vertex*)
+    Vertex* v0 = graph->addVertex(QPointF(0, 0));
+    Vertex* v1 = graph->addVertex(QPointF(100, 0));
+    Vertex* v2 = graph->addVertex(QPointF(200, 0));
+    Vertex* v3 = graph->addVertex(QPointF(0, 100));
+    Vertex* v4 = graph->addVertex(QPointF(100, 100));
     
     // Создаём рёбра с весами
     graph->addEdge(v0, v1, 10);

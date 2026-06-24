@@ -54,3 +54,17 @@ target_link_libraries(DijkstraSpecTest Qt6::Core)
 set_target_properties(DijkstraSpecTest PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
+
+# Test for Dijkstra algorithm (console only, no GUI)
+set(DIJKSTRA_TEST_SOURCES
+    test_dijkstra.cpp
+    src/DijkstraSolver.cpp
+    src/Graph.cpp
+    src/Vertex.cpp
+    src/Edge.cpp
+)
+add_executable(DijkstraTest ${DIJKSTRA_TEST_SOURCES})
+target_link_libraries(DijkstraTest Qt6::Core)
+set_target_properties(DijkstraTest PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
