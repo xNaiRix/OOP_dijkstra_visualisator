@@ -18,8 +18,8 @@ public:
     void resetLabelPos();
 
 private:
-    Vertex* m_from;
-    Vertex* m_to;
+    Vertex* const m_from;
+    Vertex* const m_to;
     int m_weight;
     QPointF m_labelPos;
     bool m_customLabelPos;
