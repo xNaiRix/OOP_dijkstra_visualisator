@@ -10,7 +10,7 @@ class DijkstraSolver {
 public:
     // Состояния вершин
     enum VertexState {
-        VS_WHITE,   // не достигнута, dist = ∞
+        VS_WHITE,   // не достигнута, dist = inf
         VS_ORANGE,  // в очереди pq, имеет временное расстояние
         VS_YELLOW,  // обрабатывается на текущем шаге
         VS_GREEN    // финализирована, расстояние найдено
@@ -29,13 +29,14 @@ public:
     void setStartVertex(Vertex* v);
     bool step(); // выполнить один шаг алгоритма, возвращает false, если завершён
     void reset();
+    
+    //геттеры
     Vertex* getCurrentVertex() const;
     Vertex* getStartVertex() const;
     QMap<Vertex*, int> getDistances() const;
     bool isFinished() const;
     QList<Vertex*> getUnvisited() const;
 
-    // Методы для получения состояний
     VertexState getVertexState(Vertex* v) const;
     EdgeState getEdgeState(Edge* e) const;
 
@@ -59,12 +60,16 @@ private:
     QMap<Vertex*, VertexState> m_oldVertexState;
     QMap<Edge*, EdgeState> m_oldEdgeState;
 
-    // Фаза шага: 0 = релаксация и правило 1, 1 = выбор следующей жёлтой вершины (правила 2.1-4)
-    int m_substep;
+    // Фаза шага: true = релаксация и правило 1, false = выбор следующей жёлтой вершины (правила 2.1-4)
+    bool relacsationPhase;
 
-    // Вспомогательные методы для установки состояний
+    // сеттеры
     void setVertexState(Vertex* v, VertexState state);
     void setEdgeState(Edge* e, EdgeState state);
+
+    //вспомогательные функции
+    bool relacsation();
+    bool nextYellow();
 };
 
 #endif // DIJKSTRASOLVER_H
