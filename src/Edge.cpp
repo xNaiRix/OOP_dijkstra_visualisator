@@ -2,7 +2,7 @@
 
 Edge::Edge(Vertex* from, Vertex* to, int weight)
     : m_from(from), m_to(to), m_weight(weight),
-      m_labelPos(0, 0), m_customLabelPos(false)
+      m_labelPos(0, 0), m_customLabelPos(false), m_selected(false)
 {}
 
 Vertex* Edge::getFrom() const {return m_from;}
@@ -26,3 +26,7 @@ void Edge::resetLabelPos() {
     m_customLabelPos = false;
     m_labelPos = QPointF(0, 0);
 }
+
+bool Edge::isSelected() const {return m_selected;}
+
+void Edge::setSelected(bool selected) {m_selected = selected;}

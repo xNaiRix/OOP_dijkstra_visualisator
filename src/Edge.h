@@ -17,12 +17,16 @@ public:
     bool hasCustomLabelPos() const;
     void resetLabelPos();
 
+    bool isSelected() const;
+    void setSelected(bool selected);
+
 private:
     Vertex* const m_from;
     Vertex* const m_to;
     int m_weight;
     QPointF m_labelPos;
     bool m_customLabelPos;
+    bool m_selected;
 };
 
 #endif // EDGE_H

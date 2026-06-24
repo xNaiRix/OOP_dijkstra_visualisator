@@ -48,7 +48,8 @@ GraphCanvas::GraphCanvas(QWidget *parent)
       m_mode(Normal),
       m_edgeStartVertex(nullptr),
       m_draggedEdge(nullptr),
-      m_dragLabelOffset(0, 0)
+      m_dragLabelOffset(0, 0),
+      m_selectedEdge(nullptr)
 {
     setFocusPolicy(Qt::StrongFocus); // чтобы получать события клавиатуры
     setMouseTracking(true);
@@ -104,6 +105,10 @@ void GraphCanvas::setMode(Mode mode) {
     m_selectedVertices.clear();
     m_edgeStartVertex = nullptr;
     m_draggedEdge = nullptr;
+    if (m_selectedEdge) {
+        m_selectedEdge->setSelected(false);
+        m_selectedEdge = nullptr;
+    }
 }
 
 void GraphCanvas::paintEvent(QPaintEvent *event) {
@@ -220,6 +225,12 @@ void GraphCanvas::drawEdge(QPainter& painter, Edge* e) {
             default:
                 edgeColor = getEdgeNormalColor();
         }
+    }
+
+    // Если ребро выделено — рисуем серую обводку (более толстую линию под основной)
+    if (e->isSelected()) {
+        painter.setPen(QPen(QColor(128, 128, 128), 7)); // серая обводка
+        painter.drawLine(p1, p2);
     }
 
     painter.setPen(QPen(edgeColor, 3));
@@ -358,6 +369,11 @@ void GraphCanvas::addEdgeBetween(Vertex* from, Vertex* to, int weight) {
 
 void GraphCanvas::deleteSelected() {
     if (!m_graph) return;
+    // Сброс выделения ребра, если оно было
+    if (m_selectedEdge) {
+        m_selectedEdge->setSelected(false);
+        m_selectedEdge = nullptr;
+    }
     for (Vertex* v : m_selectedVertices) {
         m_graph->removeVertex(v);
     }
@@ -393,6 +409,12 @@ void GraphCanvas::mousePressEvent(QMouseEvent* event) {
         }
         
         if (clickedVertex) {
+            // Сброс выделения ребра при клике на вершину
+            if (m_selectedEdge) {
+                m_selectedEdge->setSelected(false);
+                m_selectedEdge = nullptr;
+            }
+            
             if (event->modifiers() & Qt::ShiftModifier) {
                 // Shift+клик -> выделение вершины для создания ребра
                 m_selectedVertices.append(clickedVertex);
@@ -416,10 +438,30 @@ void GraphCanvas::mousePressEvent(QMouseEvent* event) {
                 update();
             }
         } else {
-            // Клик по пустому месту -> сброс выделения
-            m_selectedVertices.clear();
-            m_draggedVertex = nullptr;
-            update();
+            // Клик по пустому месту — проверяем, не кликнули ли на ребро
+            Edge* clickedEdge = edgeAt(pos);
+            if (clickedEdge) {
+                // Сброс выделения предыдущего ребра
+                if (m_selectedEdge && m_selectedEdge != clickedEdge) {
+                    m_selectedEdge->setSelected(false);
+                }
+                // Сброс выделения вершин
+                m_selectedVertices.clear();
+                m_draggedVertex = nullptr;
+                // Выделяем новое ребро
+                m_selectedEdge = clickedEdge;
+                m_selectedEdge->setSelected(true);
+                update();
+            } else {
+                // Клик по пустому месту -> сброс выделения всего
+                if (m_selectedEdge) {
+                    m_selectedEdge->setSelected(false);
+                    m_selectedEdge = nullptr;
+                }
+                m_selectedVertices.clear();
+                m_draggedVertex = nullptr;
+                update();
+            }
         }
     }
 }
@@ -454,6 +496,11 @@ void GraphCanvas::mouseDoubleClickEvent(QMouseEvent* event) {
             edge = edgeAtWeight(pos);
         }
         if (edge) {
+            // Сброс выделения ребра при двойном клике
+            if (m_selectedEdge) {
+                m_selectedEdge->setSelected(false);
+                m_selectedEdge = nullptr;
+            }
             // Кастомный диалог: изменение веса ребра + сброс позиции метки
             QDialog dialog(this);
             dialog.setWindowTitle("Ребро");
@@ -507,8 +554,20 @@ void GraphCanvas::mouseDoubleClickEvent(QMouseEvent* event) {
 
 void GraphCanvas::keyPressEvent(QKeyEvent* event) {
     if (event->key() == Qt::Key_Delete) {
-        deleteSelected();
+        // Если выделено ребро — удаляем его
+        if (m_selectedEdge) {
+            Edge* edgeToRemove = m_selectedEdge;
+            m_selectedEdge = nullptr;
+            m_graph->removeEdge(edgeToRemove);
+            update();
+        } else {
+            deleteSelected();
+        }
     } else if (event->key() == Qt::Key_Escape) {
+        if (m_selectedEdge) {
+            m_selectedEdge->setSelected(false);
+            m_selectedEdge = nullptr;
+        }
         m_selectedVertices.clear();
         update();
     }
@@ -530,6 +589,9 @@ void GraphCanvas::contextMenuEvent(QContextMenuEvent* event) {
         });
     } else if (edge) {
         menu.addAction("Удалить ребро", [this, edge]() {
+            if (m_selectedEdge == edge) {
+                m_selectedEdge = nullptr;
+            }
             m_graph->removeEdge(edge);
             update();
         });
