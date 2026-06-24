@@ -59,8 +59,8 @@ void MainWindow::setupUI() {
     // Левая часть: кнопки, canvas, статус
     QVBoxLayout* leftLayout = new QVBoxLayout();
     leftLayout->addLayout(buttonLayout);
-    leftLayout->addWidget(m_canvas);
-    leftLayout->addWidget(m_statusLabel);
+    leftLayout->addWidget(m_canvas, 1);
+    leftLayout->addWidget(m_statusLabel, 0);
 
     // Правая часть: таблица расстояний
     QVBoxLayout* rightLayout = new QVBoxLayout();

@@ -34,7 +34,6 @@ QColor GraphCanvas::getContrastTextColor() const
 {
     QColor bg = palette().color(QPalette::Window);
     int lightness = bg.lightness();
-    qDebug() << "[getContrastTextColor] bg:" << bg.name() << "lightness:" << lightness << "returning" << (lightness < 128 ? "white" : "black");
     return lightness < 128 ? Qt::white : Qt::black;
 }
 
@@ -170,8 +169,6 @@ void GraphCanvas::drawVertex(QPainter& painter, Vertex* v) {
 
     // Определение цвета текста: для цветных вершин — черный, для белых — тоже черный (контрастный относительно вершины)
     QColor textColor = Qt::black;
-    qDebug() << "[drawVertex] id:" << v->getId() << "fillColor:" << fillColor.name() << "textColor:" << textColor.name() << "isNormal:" << (fillColor == COLOR_VERTEX_NORMAL);
-
     // Подсветка выделенной вершины
     if (m_selectedVertices.contains(v) || v == m_selectedVertex) {
         painter.setPen(QPen(COLOR_VERTEX_SELECTED, 4));
@@ -519,10 +516,8 @@ void GraphCanvas::mouseDoubleClickEvent(QMouseEvent* event) {
             QHBoxLayout* btnLayout = new QHBoxLayout();
             QPushButton* btnApply = new QPushButton("Изменить вес");
             QPushButton* btnReset = new QPushButton("Вернуть к ребру");
-            QPushButton* btnCancel = new QPushButton("Отмена");
             btnLayout->addWidget(btnApply);
             btnLayout->addWidget(btnReset);
-            btnLayout->addWidget(btnCancel);
             layout->addLayout(btnLayout);
 
             connect(btnApply, &QPushButton::clicked, [&]() {
@@ -532,9 +527,6 @@ void GraphCanvas::mouseDoubleClickEvent(QMouseEvent* event) {
             connect(btnReset, &QPushButton::clicked, [&]() {
                 edge->resetLabelPos();
                 dialog.accept();
-            });
-            connect(btnCancel, &QPushButton::clicked, [&]() {
-                dialog.reject();
             });
 
             if (dialog.exec() == QDialog::Accepted) {
