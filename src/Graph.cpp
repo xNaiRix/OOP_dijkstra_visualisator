@@ -1,6 +1,7 @@
 #include "Graph.h"
 #include <QDebug>
 #include <QRandomGenerator>
+#include <algorithm>
 
 Graph::Graph() : m_nextVertexId(0) {}
 
@@ -37,12 +38,7 @@ void Graph::removeVertex(Vertex* v) {
 
     qDebug() << "[Graph] Удаление вершины id=" << v->getId();
     // Удалить все рёбра, инцидентные вершине
-    QList<Edge*> edgesToRemove;
-    for (Edge* e : m_edges) {
-        if (e->getFrom() == v || e->getTo() == v) {
-            edgesToRemove.append(e);
-        }
-    }
+    QList<Edge*> edgesToRemove = Graph::getAdjacentEdges(v);
     qDebug() << "  Удалено инцидентных рёбер:" << edgesToRemove.size();
     for (Edge* e : edgesToRemove) {
         m_edges.removeOne(e);
@@ -64,13 +60,9 @@ void Graph::removeEdge(Edge* e) {
     }
 }
 
-QList<Vertex*> Graph::getVertices() const {
-    return m_vertices;
-}
+QList<Vertex*> Graph::getVertices() const {return m_vertices;}
 
-QList<Edge*> Graph::getEdges() const {
-    return m_edges;
-}
+QList<Edge*> Graph::getEdges() const { return m_edges;}
 
 QList<Edge*> Graph::getAdjacentEdges(Vertex* v) const {
     QList<Edge*> result;
@@ -141,10 +133,8 @@ void Graph::generateRandomGraph(int vertexCount, int edgeCount, const QRectF& ar
         }
     }
     // Перемешиваем пары
-    for (int i = 0; i < possiblePairs.size(); ++i) {
-        int j = rng->bounded(possiblePairs.size());
-        qSwap(possiblePairs[i], possiblePairs[j]);
-    }
+    std::shuffle(possiblePairs.begin(), possiblePairs.end(), 
+        std::default_random_engine(rng->generate()));
 
     // Добавляем рёбра, пока не достигнем нужного количества
     for (int idx = 0; idx < possiblePairs.size() && edgesAdded < edgeCount; ++idx) {
